@@ -12,4 +12,6 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Target Vercel's serverless functions instead of Cloudflare (the default).
+  nitro: { preset: "vercel" },
 });
