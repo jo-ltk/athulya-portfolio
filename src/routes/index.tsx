@@ -488,7 +488,7 @@ function Cover() {
           display: flex;
           justify-content: center;
           align-items: flex-start;
-          padding-top: 30vh; /* Pushed further down on mobile */
+          padding-top: 20vh; /* Pushed further down on mobile */
           pointer-events: none;
           z-index: 0;
         }
@@ -541,7 +541,7 @@ function Cover() {
           letter-spacing: .18em;
           color: #333;
           z-index: 40;
-          top: 22vh; /* Brought much closer to the name container (which is at 30vh) */
+          top: 12vh; /* Brought much closer to the name container (which is at 20vh) */
           left: 50%;
           text-align: center;
           white-space: nowrap;
