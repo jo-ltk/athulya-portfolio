@@ -23,9 +23,9 @@ const brands = [
 ];
 
 const certificates = [
-  { img: cert1, caption: "Professional Creative Certification" },
-  { img: cert2, caption: "Design & Concept Art Recognition" },
-  { img: cert3, caption: "Industry Excellence Award" },
+  { img: cert1, caption: "Practice-Led Research Project Certificate - Sustainable Product Strategies (AGMC)" },
+  { img: cert2, caption: "Certificate of Research Contribution - Havas Red Middle East × University of Europe" },
+  { img: cert3, caption: "Havas Red Middle East - Research and space design" },
 ];
 
 function AchievementsPage() {

@@ -8,12 +8,6 @@ export const Route = createFileRoute("/about")({
   component: AboutPage,
 });
 
-const disciplines = [
-  "Interior Design",
-  "Graphic Design",
-  "Illustration",
-  "Visual Storytelling",
-];
 
 const beliefs = [
   { label: "Colour", desc: "Every palette tells a story." },
@@ -119,22 +113,7 @@ function AboutPage() {
               feel meaningful, human, and true.
             </motion.p>
 
-            {/* Disciplines tags */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.58, duration: 0.8 }}
-              className="mt-6 flex flex-wrap gap-2"
-            >
-              {disciplines.map((t) => (
-                <span
-                  key={t}
-                  className="border border-violet/40 px-4 py-1.5 text-[11px] uppercase tracking-[0.25em] text-violet-deep hover:bg-violet hover:text-cream transition-colors duration-300"
-                >
-                  {t}
-                </span>
-              ))}
-            </motion.div>
+
 
             {/* Belief list — pinned to the bottom so this column matches the image column's height */}
             <motion.div
