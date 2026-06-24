@@ -1,7 +1,9 @@
+import { useState, useCallback } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { PageShell } from "@/components/portfolio";
 import { BackBar } from "./about";
+import { Lightbox } from "@/components/Lightbox";
 
 import ill1 from "@/assets/illustration-works/illustration work 1.png";
 import ill2 from "@/assets/illustration-works/illustration work 2.png";
@@ -28,7 +30,15 @@ const illustrations = [
   { img: ill8, title: "Fantasy Poster" },
 ];
 
+const lightboxImages = illustrations.map((p) => ({ src: p.img, title: p.title }));
+
 function IllustrationPage() {
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const onClose = useCallback(() => setLightboxIndex(null), []);
+  const onPrev = useCallback(() => setLightboxIndex((i) => (i !== null ? (i - 1 + lightboxImages.length) % lightboxImages.length : null)), []);
+  const onNext = useCallback(() => setLightboxIndex((i) => (i !== null ? (i + 1) % lightboxImages.length : null)), []);
+
   return (
     <PageShell>
       <div className="min-h-screen px-6 py-10 md:px-16 md:py-14">
@@ -52,6 +62,7 @@ function IllustrationPage() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: (i % 3) * 0.08 + Math.floor(i / 3) * 0.05, duration: 0.7 }}
               className="group relative cursor-pointer"
+              onClick={() => setLightboxIndex(i)}
             >
               <div className="overflow-hidden transition-transform duration-500 group-hover:-translate-y-2 border border-violet/10 aspect-square">
                 <img 
@@ -70,6 +81,14 @@ function IllustrationPage() {
           ))}
         </div>
       </div>
+
+      <Lightbox
+        images={lightboxImages}
+        currentIndex={lightboxIndex}
+        onClose={onClose}
+        onPrev={onPrev}
+        onNext={onNext}
+      />
     </PageShell>
   );
 }
