@@ -1,199 +1,648 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import portraitNobg from "@/assets/cover-page-image.png";
 
 export const Route = createFileRoute("/")({
-head: () => ({
-meta: [
-{ title: "ATHULIYA — Portfolio" },
-{
-name: "description",
-content: "Personal portfolio of Athuliya — designer & illustrator.",
-},
-],
-}),
-component: Cover,
+  head: () => ({
+    meta: [
+      { title: "ATHULIYA — Portfolio" },
+      {
+        name: "description",
+        content: "Personal portfolio of Athuliya — designer & illustrator.",
+      },
+    ],
+  }),
+  component: Cover,
 });
 
+const LETTERS = ["A", "T", "H", "U", "L", "I", "Y", "A"];
+
 function Cover() {
-return (
-<motion.main
-initial={{ opacity: 0 }}
-animate={{ opacity: 1 }}
-transition={{ duration: 0.8 }}
-className="relative h-screen w-full overflow-hidden bg-white"
->
-  {/* ATHULIYA Text - large background text at the top */}
-  <div className="absolute top-0 left-0 right-0 flex justify-center items-start pointer-events-none z-0" style={{ paddingTop: "22vh" }}>
-        <motion.h1
-          initial={{
-            opacity: 0,
-            y: 120,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            duration: 1.2,
-          }}
-          className="
-            font-['Bebas_Neue']
-            uppercase
-            leading-[0.8]
-            tracking-[-0.05em]
-            text-[#5B1A8D]
-            whitespace-nowrap
-          "
+  const [lettersVisible, setLettersVisible] = useState(false);
+  const [uiVisible, setUiVisible] = useState(false);
+  const [lineVisible, setLineVisible] = useState(false);
+  const [easterEggOpen, setEasterEggOpen] = useState(false);
+  const [easterFound, setEasterFound] = useState(false);
+  const [glitching, setGlitching] = useState(false);
+
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const nameRef = useRef<HTMLHeadingElement>(null);
+  const portraitRef = useRef<HTMLDivElement>(null);
+  const cursorDotRef = useRef<HTMLDivElement>(null);
+  const cursorRingRef = useRef<HTMLDivElement>(null);
+  const clickCountRef = useRef(0);
+  const ringPosRef = useRef({ x: 0, y: 0 });
+  const mousePosRef = useRef({ x: 0, y: 0 });
+  const rafRef = useRef<number>(0);
+  const glitchTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const particleRafRef = useRef<number>(0);
+
+  // — Boot sequence
+  useEffect(() => {
+    const t1 = setTimeout(() => setLineVisible(true), 100);
+    const t2 = setTimeout(() => setLettersVisible(true), 150);
+    const t3 = setTimeout(() => setUiVisible(true), 800);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, []);
+
+  // — Cursor lerp loop
+  useEffect(() => {
+    function onMouseMove(e: MouseEvent) {
+      mousePosRef.current = { x: e.clientX, y: e.clientY };
+      if (cursorDotRef.current) {
+        cursorDotRef.current.style.left = e.clientX + "px";
+        cursorDotRef.current.style.top = e.clientY + "px";
+      }
+      // Parallax name + portrait
+      const rx = (e.clientX / window.innerWidth - 0.5);
+      const ry = (e.clientY / window.innerHeight - 0.5);
+      if (nameRef.current) {
+        nameRef.current.style.transform = `translate(${rx * 18}px, ${ry * 8}px)`;
+      }
+      if (portraitRef.current) {
+        portraitRef.current.style.transform = `translateX(-50%) translate(${rx * -24}px, ${ry * -12}px)`;
+      }
+    }
+
+    function lerpRing() {
+      const { x: tx, y: ty } = mousePosRef.current;
+      let { x, y } = ringPosRef.current;
+      x += (tx - x) * 0.12;
+      y += (ty - y) * 0.12;
+      ringPosRef.current = { x, y };
+      if (cursorRingRef.current) {
+        cursorRingRef.current.style.left = x + "px";
+        cursorRingRef.current.style.top = y + "px";
+      }
+      rafRef.current = requestAnimationFrame(lerpRing);
+    }
+
+    window.addEventListener("mousemove", onMouseMove);
+    rafRef.current = requestAnimationFrame(lerpRing);
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  // — Particle canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    const ctx = context;
+
+    let W = 0, H = 0;
+    const colors = ["#5B1A8D", "#EBDDC3", "#9B6AC0"];
+    type Particle = { x: number; y: number; vx: number; vy: number; size: number; alpha: number; color: string; shape: "circle" | "cross" };
+    let particles: Particle[] = [];
+
+    function resize() {
+      if (!canvas) return;
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+      particles = Array.from({ length: 40 }, () => ({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.35,
+        size: Math.random() * 3 + 1,
+        alpha: Math.random() * 0.2 + 0.05,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        shape: Math.random() > 0.5 ? "circle" : "cross",
+      }));
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    let frame = 0;
+    function animate() {
+      ctx.clearRect(0, 0, W, H);
+      frame++;
+      particles.forEach((p) => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < -10) p.x = W + 10;
+        if (p.x > W + 10) p.x = -10;
+        if (p.y < -10) p.y = H + 10;
+        if (p.y > H + 10) p.y = -10;
+        p.alpha = Math.sin(frame * 0.012 + p.x * 0.008) * 0.12 + 0.08;
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.strokeStyle = p.color;
+        if (p.shape === "circle") {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(p.x - p.size, p.y); ctx.lineTo(p.x + p.size, p.y);
+          ctx.moveTo(p.x, p.y - p.size); ctx.lineTo(p.x, p.y + p.size);
+          ctx.stroke();
+        }
+        ctx.restore();
+      });
+      particleRafRef.current = requestAnimationFrame(animate);
+    }
+    particleRafRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      window.removeEventListener("resize", resize);
+      cancelAnimationFrame(particleRafRef.current);
+    };
+  }, []);
+
+  // — Random glitch
+  useEffect(() => {
+    glitchTimerRef.current = setInterval(() => {
+      if (Math.random() > 0.88) {
+        setGlitching(true);
+        setTimeout(() => setGlitching(false), 110);
+      }
+    }, 3200);
+    return () => { if (glitchTimerRef.current) clearInterval(glitchTimerRef.current); };
+  }, []);
+
+  // — Easter egg: click anywhere 7 times
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (easterFound) return;
+      clickCountRef.current++;
+      if (clickCountRef.current >= 7) {
+        setEasterEggOpen(true);
+        setEasterFound(true);
+        spawnSparkles(e.clientX, e.clientY);
+      }
+    }
+    window.addEventListener("click", handleClick);
+    return () => window.removeEventListener("click", handleClick);
+  }, [easterFound]);
+
+  function spawnSparkles(cx: number, cy: number) {
+    for (let i = 0; i < 14; i++) {
+      const angle = (i / 14) * Math.PI * 2;
+      const dist = 45 + Math.random() * 40;
+      const el = document.createElement("div");
+      el.style.cssText = `
+        position:fixed;pointer-events:none;z-index:9997;
+        left:${cx}px;top:${cy}px;
+        width:7px;height:7px;
+        background:${i % 2 === 0 ? "#5B1A8D" : "#EBDDC3"};
+        border-radius:50%;
+        transform:translate(-50%,-50%);
+        transition:transform 0.75s ease, opacity 0.75s ease;
+        opacity:1;
+      `;
+      document.body.appendChild(el);
+      requestAnimationFrame(() => {
+        el.style.transform = `translate(calc(-50% + ${Math.cos(angle) * dist}px), calc(-50% + ${Math.sin(angle) * dist}px))`;
+        el.style.opacity = "0";
+      });
+      setTimeout(() => el.remove(), 800);
+    }
+  }
+
+  function handleHoverableEnter() {
+    if (cursorDotRef.current) { cursorDotRef.current.style.width = "6px"; cursorDotRef.current.style.height = "6px"; }
+    if (cursorRingRef.current) { cursorRingRef.current.style.width = "52px"; cursorRingRef.current.style.height = "52px"; cursorRingRef.current.style.opacity = "1"; }
+  }
+  function handleHoverableLeave() {
+    if (cursorDotRef.current) { cursorDotRef.current.style.width = "10px"; cursorDotRef.current.style.height = "10px"; }
+    if (cursorRingRef.current) { cursorRingRef.current.style.width = "36px"; cursorRingRef.current.style.height = "36px"; cursorRingRef.current.style.opacity = "0.5"; }
+  }
+
+  return (
+    <>
+      {/* ─── Custom Cursor ─────────────────────────────── */}
+      <div className="custom-cursor-container" style={{ position: "fixed", pointerEvents: "none", zIndex: 9999 }}>
+        <div
+          ref={cursorDotRef}
           style={{
-            fontSize: "clamp(9rem,32vw,34rem)",
-            textShadow: "6px 6px 0px #EBDDC3",
+            position: "fixed",
+            width: 10, height: 10,
+            background: "#5B1A8D",
+            borderRadius: "50%",
+            transform: "translate(-50%,-50%)",
+            transition: "width .2s, height .2s",
+            pointerEvents: "none",
           }}
+        />
+        <div
+          ref={cursorRingRef}
+          style={{
+            position: "fixed",
+            width: 36, height: 36,
+            border: "1.5px solid #5B1A8D",
+            borderRadius: "50%",
+            transform: "translate(-50%,-50%)",
+            transition: "width .25s ease, height .25s ease, opacity .25s",
+            opacity: 0.5,
+            pointerEvents: "none",
+          }}
+        />
+      </div>
+
+      {/* ─── Main Stage ────────────────────────────────── */}
+      <main className="cover-main">
+        {/* Grain overlay */}
+        <div
+          style={{
+            position: "absolute", inset: 0, zIndex: 2,
+            pointerEvents: "none", opacity: 0.025,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+            backgroundSize: "150px 150px",
+          }}
+        />
+
+        {/* Particle canvas */}
+        <canvas
+          ref={canvasRef}
+          style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none", width: "100%", height: "100%" }}
+        />
+
+        {/* Bottom progress line */}
+        <div
+          style={{
+            position: "absolute", bottom: 0, left: 0,
+            height: 3,
+            background: "linear-gradient(90deg, #5B1A8D, #EBDDC3)",
+            zIndex: 60,
+            width: lineVisible ? "100%" : "0%",
+            transition: "width 1.4s ease 0.3s",
+          }}
+        />
+
+        {/* ── ATHULIYA letters ── */}
+        <div className="cover-name-container">
+          <div
+            style={{
+              transform: glitching ? "skewX(-3deg)" : "none",
+              transition: "transform 0.1s ease",
+            }}
+          >
+            <h1
+              ref={nameRef}
+              className="cover-name"
+              style={{
+                textShadow: glitching
+                  ? "5px 5px 0 #EBDDC3, -2px -2px 0 #9B6AC0"
+                  : "5px 5px 0 #EBDDC3",
+              }}
+            >
+              {LETTERS.map((char, i) => (
+                <span
+                  key={i}
+                  style={{
+                    display: "inline-block",
+                    transform: lettersVisible ? "translateY(0)" : "translateY(240px)",
+                    opacity: lettersVisible ? 1 : 0,
+                    transition: `transform .7s cubic-bezier(.22,1,.36,1) ${i * 0.07}s, opacity .7s ease ${i * 0.07}s`,
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+            </h1>
+          </div>
+        </div>
+
+        {/* ── Portrait ── */}
+        <div
+          ref={portraitRef}
+          className="cover-portrait-container"
         >
-          ATHULIYA
-        </motion.h1>
-  </div>
-  {/* Portrait - centered, above the ATHULIYA text */}
-  <motion.div
-    initial={{
-      opacity: 0,
-      y: 80,
-      scale: 0.9,
-    }}
-    animate={{
-      opacity: 1,
-      y: 0,
-      scale: 1,
-    }}
-    transition={{
-      duration: 1.2,
-      delay: 0.2,
-    }}
-    className="
-      absolute
-      left-1/2
-      -translate-x-1/2
-      bottom-0
-      z-30
-      w-[90%]
-      sm:w-[70%]
-      md:w-[44%]
-      lg:w-[36%]
-      max-w-[580px]
-      pointer-events-none
-    "
-  >
-    <motion.img
-      src={portraitNobg}
-      alt="Athuliya"
-      className="w-full h-auto object-contain"
-      animate={{
-        y: [0, -12, 0],
-      }}
-      transition={{
-        duration: 6,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }}
-      style={{
-        filter:
-          "drop-shadow(0 25px 40px rgba(0,0,0,0.08))",
-      }}
-    />
-  </motion.div>
+          <img
+            src={portraitNobg}
+            alt="Athuliya"
+            style={{
+              width: "100%",
+              height: "auto",
+              objectFit: "contain",
+              filter: "drop-shadow(0 25px 40px rgba(0,0,0,0.08))",
+              animation: "floatAnim 6s ease-in-out infinite",
+            }}
+          />
+        </div>
 
-  {/* Creative Designer */}
-  <motion.div
-    initial={{ opacity: 0, x: 40 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{
-      delay: 0.7,
-      duration: 0.8,
-    }}
-    className="
-      absolute
-      left-1/2
-      -translate-x-1/2
-      top-[14%]
-      md:left-auto
-      md:translate-x-0
-      md:right-[10%]
-      md:top-[45%]
-      z-40
-      font-['Architects_Daughter']
-      italic
-      text-xs
-      md:text-lg
-      tracking-[0.18em]
-      text-zinc-700
-      text-center
-    "
-  >
-    CREATIVE DESIGNER
-  </motion.div>
+        {/* ── Creative Designer tag ── */}
+        <div
+          className={`cover-designer-tag ${uiVisible ? "visible" : ""}`}
+        >
+          CREATIVE DESIGNER
+        </div>
 
-  {/* Buttons - centered row on mobile, spread on desktop */}
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.9, duration: 0.8 }}
-    className="
-      absolute
-      bottom-6
-      left-0
-      right-0
-      z-40
-      flex
-      items-center
-      justify-center
-      gap-6
-      px-6
-      md:justify-between
-      md:px-12
-    "
-  >
-    <Link
-      to="/nav"
-      className="
-        inline-flex
-        items-center
-        justify-center
-        rounded-full
-        bg-[#5B1A8D]
-        px-8
-        py-4
-        text-[11px]
-        font-bold
-        uppercase
-        tracking-[0.25em]
-        text-white
-        transition-all
-        duration-300
-        hover:scale-105
-        hover:bg-[#4B1675]
-      "
-    >
-      Click Here To Explore
-    </Link>
 
-    <Link
-      to="/nav"
-      className="
-        font-['Bebas_Neue']
-        text-3xl
-        uppercase
-        tracking-[0.15em]
-        text-black
-        hover:text-[#5B1A8D]
-        transition-colors
-      "
-    >
-      Portfolio
-    </Link>
-  </motion.div>
-</motion.main>
 
-);
+        {/* ── Bottom bar: CTA + Portfolio link ── */}
+        <div
+          className={`cover-bottom-bar ${uiVisible ? "visible" : ""}`}
+        >
+          <Link
+            to="/nav"
+            className="cover-btn"
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#4B1675"; (e.currentTarget as HTMLElement).style.transform = "scale(1.05)"; handleHoverableEnter(); }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#5B1A8D"; (e.currentTarget as HTMLElement).style.transform = "scale(1)"; handleHoverableLeave(); }}
+          >
+            Click Here To Explore
+          </Link>
+
+          <Link
+            to="/nav"
+            className="cover-portfolio-link"
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#5B1A8D"; handleHoverableEnter(); }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#111"; handleHoverableLeave(); }}
+          >
+            Portfolio
+            <span style={{
+              position: "absolute", left: 0, bottom: -3,
+              height: 2, background: "#5B1A8D",
+              width: 0,
+              transition: "width .4s ease",
+            }} className="portfolio-underline" />
+          </Link>
+        </div>
+
+        {/* ── Easter egg secret trigger (hover right edge) ── */}
+        <div
+          style={{
+            position: "absolute", top: "50%", right: "3%",
+            transform: "translateY(-50%)",
+            width: 28, height: 28,
+            zIndex: 50,
+            cursor: "none",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            opacity: easterFound ? 1 : 0,
+            transition: "opacity .4s",
+            fontSize: 14, color: "#5B1A8D",
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.4"; handleHoverableEnter(); }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = easterFound ? "1" : "0"; handleHoverableLeave(); }}
+          onClick={(e) => { e.stopPropagation(); setEasterEggOpen(true); setEasterFound(true); spawnSparkles(e.clientX, e.clientY); }}
+        >
+          ✦
+        </div>
+
+        {/* ── Easter egg popup ── */}
+        {easterEggOpen && (
+          <div
+            style={{
+              position: "absolute", top: "50%", left: "50%",
+              transform: "translate(-50%,-50%)",
+              background: "#5B1A8D",
+              borderRadius: "1.2rem",
+              padding: "1.5rem 2rem",
+              zIndex: 100,
+              textAlign: "center",
+              maxWidth: 280,
+              animation: "popIn .4s cubic-bezier(.34,1.56,.64,1) forwards",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ fontSize: "1.8rem" }}>✦</div>
+            <p style={{
+              fontFamily: "'Architects Daughter', cursive",
+              fontSize: ".8rem",
+              lineHeight: 1.6,
+              letterSpacing: ".05em",
+              color: "#EBDDC3",
+              marginTop: ".5rem",
+              textTransform: "none",
+            }}>
+              You found the secret! Athuliya hides magic in every pixel. Now you know where to look.
+            </p>
+            <button
+              onClick={() => setEasterEggOpen(false)}
+              style={{
+                marginTop: "1rem",
+                background: "#EBDDC3",
+                border: "none",
+                borderRadius: 999,
+                padding: ".4rem 1.2rem",
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: ".8rem",
+                letterSpacing: ".1em",
+                color: "#5B1A8D",
+                cursor: "pointer",
+              }}
+            >
+              Close ✕
+            </button>
+          </div>
+        )}
+      </main>
+
+      {/* ─── Global keyframes ─────────────────────────── */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Architects+Daughter&display=swap');
+
+        /* Hide custom cursor on touch devices */
+        @media (hover: none) {
+          .custom-cursor-container {
+            display: none !important;
+          }
+          * {
+            cursor: auto !important;
+          }
+        }
+
+        /* Hide default cursor globally on desktop if hover is supported */
+        @media (hover: hover) {
+          * {
+            cursor: none !important;
+          }
+        }
+
+        @keyframes floatAnim {
+          0%, 100% { transform: translateY(0); }
+          50%       { transform: translateY(-14px); }
+        }
+        @keyframes popIn {
+          from { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+          to   { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+        }
+
+        /* Portfolio link underline on hover */
+        a:hover .portfolio-underline { width: 100% !important; }
+
+        /* Cover layout classes */
+        .cover-main {
+          position: relative;
+          height: 100vh;
+          width: 100%;
+          overflow: hidden;
+          background: #fff;
+        }
+        @media (hover: hover) {
+          .cover-main {
+            cursor: none;
+          }
+        }
+
+        .cover-name-container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          padding-top: 30vh; /* Pushed further down on mobile */
+          pointer-events: none;
+          z-index: 0;
+        }
+        @media (min-width: 768px) {
+          .cover-name-container {
+            padding-top: 18vh; /* Pushed down on desktop */
+          }
+        }
+
+        .cover-name {
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: clamp(8rem, 29vw, 22rem); /* Massive text size on mobile */
+          line-height: 0.85;
+          letter-spacing: -0.03em;
+          color: #5B1A8D;
+          white-space: nowrap;
+          will-change: transform;
+          user-select: none;
+          transition: transform .05s linear, text-shadow .05s;
+        }
+        @media (min-width: 768px) {
+          .cover-name {
+            font-size: clamp(12rem, 28vw, 34rem); /* Super massive on desktop */
+          }
+        }
+
+        .cover-portrait-container {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          bottom: 0; /* Positioned at the bottom overlapping the buttons, matching screenshot */
+          z-index: 30;
+          width: clamp(340px, 92vw, 520px); /* Even larger portrait on mobile */
+          pointer-events: none;
+          will-change: transform;
+          transition: bottom 0.3s ease, width 0.3s ease;
+        }
+        @media (min-width: 768px) {
+          .cover-portrait-container {
+            bottom: 0;
+            width: clamp(400px, 46vw, 660px); /* Even larger on desktop */
+          }
+        }
+
+        .cover-designer-tag {
+          position: absolute;
+          font-family: 'Architects Daughter', cursive;
+          font-style: italic;
+          font-size: clamp(.65rem, 1.2vw, 1.05rem);
+          letter-spacing: .18em;
+          color: #333;
+          z-index: 40;
+          top: 22vh; /* Brought much closer to the name container (which is at 30vh) */
+          left: 50%;
+          text-align: center;
+          white-space: nowrap;
+          transition: opacity .8s ease .9s, transform .8s ease .9s;
+          transform: translate(-50%, 16px);
+          opacity: 0;
+        }
+        .cover-designer-tag.visible {
+          transform: translate(-50%, 0);
+          opacity: 1;
+        }
+        @media (min-width: 768px) {
+          .cover-designer-tag {
+            left: auto;
+            right: 10%;
+            top: 44%;
+            text-align: right;
+            transform: translateY(16px);
+          }
+          .cover-designer-tag.visible {
+            transform: translateY(0);
+          }
+        }
+
+        .cover-bottom-bar {
+          position: absolute;
+          bottom: 1.5rem;
+          left: 0;
+          right: 0;
+          z-index: 40;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 1rem; /* Slightly smaller gap to save horizontal space on mobile */
+          padding: 0 1rem;
+          transition: opacity 0.8s ease 1s, transform 0.8s ease 1s;
+          transform: translateY(30px);
+          opacity: 0;
+        }
+        .cover-bottom-bar.visible {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        @media (min-width: 768px) {
+          .cover-bottom-bar {
+            bottom: 2rem;
+            justify-content: space-between;
+            padding: 0 3rem;
+            gap: 2rem;
+          }
+        }
+
+        .cover-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 999px;
+          background: #5B1A8D;
+          padding: .75rem 1.4rem; /* Optimized mobile padding */
+          font-size: .58rem; /* Optimized mobile font-size */
+          font-weight: 700;
+          letter-spacing: .18em;
+          color: #fff;
+          text-transform: uppercase;
+          border: none;
+          cursor: none;
+          text-decoration: none;
+          white-space: nowrap; /* Ensures button text never wraps */
+          transition: background .3s, transform .2s;
+          position: relative;
+          overflow: hidden;
+        }
+        @media (min-width: 768px) {
+          .cover-btn {
+            padding: .9rem 2rem;
+            font-size: .65rem;
+            letter-spacing: .25em;
+          }
+        }
+
+        .cover-portfolio-link {
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: 1.75rem; /* Optimized mobile font-size */
+          letter-spacing: .12em;
+          color: #111;
+          text-transform: uppercase;
+          cursor: none;
+          text-decoration: none;
+          white-space: nowrap; /* Prevents wrapping */
+          position: relative;
+          transition: color .3s;
+        }
+        @media (min-width: 768px) {
+          .cover-portfolio-link {
+            font-size: 2.2rem;
+            letter-spacing: .15em;
+          }
+        }
+      `}</style>
+    </>
+  );
 }
 
 export default Cover;
