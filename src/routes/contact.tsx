@@ -9,9 +9,7 @@ export const Route = createFileRoute("/contact")({
 });
 
 const socials = [
-  { label: "Instagram", href: "https://instagram.com/" },
-  { label: "LinkedIn", href: "https://linkedin.com/" },
-  { label: "Behance", href: "https://behance.net/" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/athuliyareji/" },
 ];
 
 function ContactPage() {
@@ -34,28 +32,21 @@ function ContactPage() {
             Let's create <span className="font-italic-serif italic text-violet">something</span> together.
           </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }}
-            className="mt-8 font-italic-serif text-xl md:text-2xl text-ink/80 max-w-2xl"
-          >
-            [Your welcoming message — say hello, share what kinds of collaborations excite you, and invite the reader in.]
-          </motion.p>
-
           <motion.a
-            href="mailto:youremail@email.com"
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.8 }}
+            href="mailto:athuliyareji@gmail.com"
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }}
             className="mt-12 block font-display text-violet hover:text-violet-deep transition-colors break-all"
             style={{ fontSize: "clamp(1.75rem, 4.5vw, 3.5rem)" }}
           >
-            youremail@email.com
+            athuliyareji@gmail.com
           </motion.a>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.8 }}
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.8 }}
             className="mt-12 flex flex-wrap items-center gap-6"
           >
             <a
-              href="mailto:youremail@email.com"
+              href="mailto:athuliyareji@gmail.com"
               className="group inline-flex items-center gap-3 bg-violet text-cream px-8 py-4 text-[11px] uppercase tracking-[0.35em] hover:bg-violet-deep transition-all duration-500 animate-pulse-glow"
             >
               Send an email
