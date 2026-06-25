@@ -28,12 +28,7 @@ function Cover() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const nameRef = useRef<HTMLHeadingElement>(null);
   const portraitRef = useRef<HTMLDivElement>(null);
-  const cursorDotRef = useRef<HTMLDivElement>(null);
-  const cursorRingRef = useRef<HTMLDivElement>(null);
   const clickCountRef = useRef(0);
-  const ringPosRef = useRef({ x: 0, y: 0 });
-  const mousePosRef = useRef({ x: 0, y: 0 });
-  const rafRef = useRef<number>(0);
   const glitchTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const particleRafRef = useRef<number>(0);
 
@@ -45,15 +40,9 @@ function Cover() {
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
 
-  // — Cursor lerp loop
+  // — Parallax on mouse move
   useEffect(() => {
     function onMouseMove(e: MouseEvent) {
-      mousePosRef.current = { x: e.clientX, y: e.clientY };
-      if (cursorDotRef.current) {
-        cursorDotRef.current.style.left = e.clientX + "px";
-        cursorDotRef.current.style.top = e.clientY + "px";
-      }
-      // Parallax name + portrait
       const rx = (e.clientX / window.innerWidth - 0.5);
       const ry = (e.clientY / window.innerHeight - 0.5);
       if (nameRef.current) {
@@ -63,25 +52,9 @@ function Cover() {
         portraitRef.current.style.transform = `translateX(-50%) translate(${rx * -24}px, ${ry * -12}px)`;
       }
     }
-
-    function lerpRing() {
-      const { x: tx, y: ty } = mousePosRef.current;
-      let { x, y } = ringPosRef.current;
-      x += (tx - x) * 0.12;
-      y += (ty - y) * 0.12;
-      ringPosRef.current = { x, y };
-      if (cursorRingRef.current) {
-        cursorRingRef.current.style.left = x + "px";
-        cursorRingRef.current.style.top = y + "px";
-      }
-      rafRef.current = requestAnimationFrame(lerpRing);
-    }
-
     window.addEventListener("mousemove", onMouseMove);
-    rafRef.current = requestAnimationFrame(lerpRing);
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
-      cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
@@ -204,45 +177,8 @@ function Cover() {
     }
   }
 
-  function handleHoverableEnter() {
-    if (cursorDotRef.current) { cursorDotRef.current.style.width = "6px"; cursorDotRef.current.style.height = "6px"; }
-    if (cursorRingRef.current) { cursorRingRef.current.style.width = "52px"; cursorRingRef.current.style.height = "52px"; cursorRingRef.current.style.opacity = "1"; }
-  }
-  function handleHoverableLeave() {
-    if (cursorDotRef.current) { cursorDotRef.current.style.width = "10px"; cursorDotRef.current.style.height = "10px"; }
-    if (cursorRingRef.current) { cursorRingRef.current.style.width = "36px"; cursorRingRef.current.style.height = "36px"; cursorRingRef.current.style.opacity = "0.5"; }
-  }
-
   return (
     <>
-      {/* ─── Custom Cursor ─────────────────────────────── */}
-      <div className="custom-cursor-container" style={{ position: "fixed", pointerEvents: "none", zIndex: 9999 }}>
-        <div
-          ref={cursorDotRef}
-          style={{
-            position: "fixed",
-            width: 10, height: 10,
-            background: "#5B1A8D",
-            borderRadius: "50%",
-            transform: "translate(-50%,-50%)",
-            transition: "width .2s, height .2s",
-            pointerEvents: "none",
-          }}
-        />
-        <div
-          ref={cursorRingRef}
-          style={{
-            position: "fixed",
-            width: 36, height: 36,
-            border: "1.5px solid #5B1A8D",
-            borderRadius: "50%",
-            transform: "translate(-50%,-50%)",
-            transition: "width .25s ease, height .25s ease, opacity .25s",
-            opacity: 0.5,
-            pointerEvents: "none",
-          }}
-        />
-      </div>
 
       {/* ─── Main Stage ────────────────────────────────── */}
       <main className="cover-main">
@@ -342,8 +278,8 @@ function Cover() {
           <Link
             to="/nav"
             className="cover-btn"
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#4B1675"; (e.currentTarget as HTMLElement).style.transform = "scale(1.05)"; handleHoverableEnter(); }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#5B1A8D"; (e.currentTarget as HTMLElement).style.transform = "scale(1)"; handleHoverableLeave(); }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#4B1675"; (e.currentTarget as HTMLElement).style.transform = "scale(1.05)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#5B1A8D"; (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
           >
             Click Here To Explore
           </Link>
@@ -351,8 +287,8 @@ function Cover() {
           <Link
             to="/nav"
             className="cover-portfolio-link"
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#5B1A8D"; handleHoverableEnter(); }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#111"; handleHoverableLeave(); }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#5B1A8D"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#111"; }}
           >
             Portfolio
             <span style={{
@@ -366,6 +302,7 @@ function Cover() {
 
         {/* ── Easter egg secret trigger (hover right edge) ── */}
         <div
+          className="hoverable"
           style={{
             position: "absolute", top: "50%", right: "3%",
             transform: "translateY(-50%)",
@@ -377,8 +314,8 @@ function Cover() {
             transition: "opacity .4s",
             fontSize: 14, color: "#5B1A8D",
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.4"; handleHoverableEnter(); }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = easterFound ? "1" : "0"; handleHoverableLeave(); }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.4"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = easterFound ? "1" : "0"; }}
           onClick={(e) => { e.stopPropagation(); setEasterEggOpen(true); setEasterFound(true); spawnSparkles(e.clientX, e.clientY); }}
         >
           ✦
