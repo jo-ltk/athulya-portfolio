@@ -317,8 +317,8 @@ function Cover() {
             src={portraitNobg}
             alt="Athuliya"
             style={{
-              width: "100%",
-              height: "auto",
+              width: "auto",
+              height: "100%",
               objectFit: "contain",
               filter: "drop-shadow(0 25px 40px rgba(0,0,0,0.08))",
               animation: "floatAnim 6s ease-in-out infinite",
@@ -488,19 +488,19 @@ function Cover() {
           display: flex;
           justify-content: center;
           align-items: flex-start;
-          padding-top: 20vh; /* Pushed further down on mobile */
+          padding-top: 15vh; /* Responsive padding */
           pointer-events: none;
           z-index: 0;
         }
         @media (min-width: 768px) {
           .cover-name-container {
-            padding-top: 18vh; /* Pushed down on desktop */
+            padding-top: 14vh;
           }
         }
 
         .cover-name {
           font-family: 'Bebas Neue', sans-serif;
-          font-size: clamp(8rem, 29vw, 22rem); /* Massive text size on mobile */
+          font-size: clamp(6rem, min(26vw, 32vh), 18rem); /* Limit height too */
           line-height: 0.85;
           letter-spacing: -0.03em;
           color: #5B1A8D;
@@ -511,7 +511,7 @@ function Cover() {
         }
         @media (min-width: 768px) {
           .cover-name {
-            font-size: clamp(12rem, 28vw, 34rem); /* Super massive on desktop */
+            font-size: clamp(8rem, min(24vw, 40vh), 32rem); /* Dynamic based on min width/height */
           }
         }
 
@@ -519,17 +519,27 @@ function Cover() {
           position: absolute;
           left: 50%;
           transform: translateX(-50%);
-          bottom: 0; /* Positioned at the bottom overlapping the buttons, matching screenshot */
+          bottom: 0;
           z-index: 30;
-          width: clamp(340px, 92vw, 520px); /* Even larger portrait on mobile */
+          width: clamp(280px, 85vw, 460px);
+          height: 65vh;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
           pointer-events: none;
           will-change: transform;
-          transition: bottom 0.3s ease, width 0.3s ease;
+          transition: bottom 0.3s ease, width 0.3s ease, height 0.3s ease;
         }
         @media (min-width: 768px) {
           .cover-portrait-container {
             bottom: 0;
-            width: clamp(400px, 46vw, 660px); /* Even larger on desktop */
+            width: clamp(340px, 40vw, 620px);
+            height: 70vh; /* Constrain image height so it doesn't clip top/bottom on short screens */
+          }
+        }
+        @media (min-width: 768px) and (min-height: 800px) {
+          .cover-portrait-container {
+            height: 75vh; /* Can be taller on larger screens */
           }
         }
 
@@ -541,7 +551,7 @@ function Cover() {
           letter-spacing: .18em;
           color: #333;
           z-index: 40;
-          top: 12vh; /* Brought much closer to the name container (which is at 20vh) */
+          top: 10vh;
           left: 50%;
           text-align: center;
           white-space: nowrap;
@@ -556,13 +566,23 @@ function Cover() {
         @media (min-width: 768px) {
           .cover-designer-tag {
             left: auto;
-            right: 10%;
-            top: 44%;
+            right: 8%;
+            top: 40%;
             text-align: right;
             transform: translateY(16px);
           }
           .cover-designer-tag.visible {
             transform: translateY(0);
+          }
+        }
+        @media (min-width: 768px) and (max-height: 800px) {
+          .cover-designer-tag {
+            top: 36%;
+          }
+        }
+        @media (min-width: 768px) and (max-height: 680px) {
+          .cover-designer-tag {
+            top: 32%;
           }
         }
 
