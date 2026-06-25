@@ -4,7 +4,6 @@ import { motion } from "motion/react";
 import { PageShell } from "@/components/portfolio";
 import { BackBar } from "./about";
 import { Lightbox } from "@/components/Lightbox";
-import spaceCover from "@/assets/cover-images/space design cover image.jpg";
 
 import sp1 from "@/assets/space-projects/space design project 1.jpg";
 import sp2 from "@/assets/space-projects/space design project 2.jpg";
@@ -25,11 +24,8 @@ const spaceProjects = [
   { img: sp5, title: "Cari" },
 ];
 
-// Include cover as the first lightbox image, followed by gallery images
-const lightboxImages = [
-  { src: spaceCover, title: "Space Design Showcase" },
-  ...spaceProjects.map((p) => ({ src: p.img, title: p.title })),
-];
+// Gallery images for lightbox
+const lightboxImages = spaceProjects.map((p) => ({ src: p.img, title: p.title }));
 
 function SpacePage() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -43,50 +39,13 @@ function SpacePage() {
       <div className="min-h-screen px-6 py-10 md:px-16 md:py-14">
         <BackBar to="/projects" label="Back to projects" />
 
-        <div className="mt-14">
+        <div className="mt-14 mb-12">
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className="text-[11px] uppercase tracking-[0.4em] text-violet-deep">✦ Projects / 03</motion.p>
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
             className="mt-3 font-display leading-[0.9] text-ink" style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)" }}>
             Space <span className="font-italic-serif italic text-violet">Design</span>
           </motion.h1>
-        </div>
-
-        <div className="mt-12 grid gap-10 md:grid-cols-12 items-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="md:col-span-7 cursor-pointer"
-            onClick={() => setLightboxIndex(0)}
-          >
-            <div className="aspect-[16/10] overflow-hidden border border-violet/20 bg-cream">
-              <img 
-                src={spaceCover} 
-                alt="Space Design Showcase" 
-                className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-              />
-            </div>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="md:col-span-5"
-          >
-            <h2 className="font-display text-2xl text-ink">Conceptual Spatial Planning</h2>
-            <p className="mt-4 font-italic-serif text-lg leading-relaxed text-ink/80">
-              Exploring the intersection of environment, structure, and human flow. These projects span corporate offices, residential interiors, cultural spaces, and conceptual installations — each designed to create meaningful spatial experiences.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-2">
-              {["Exhibition Design", "Interior Architecture", "Spatial Concept", "Corporate Interiors"].map((tag) => (
-                <span key={tag} className="border border-violet/30 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-violet-deep">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </motion.div>
         </div>
 
         {/* ── Project gallery ───────────────────────── */}
@@ -99,7 +58,7 @@ function SpacePage() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: (i % 2) * 0.08 + Math.floor(i / 2) * 0.05, duration: 0.7 }}
               className="group relative cursor-pointer"
-              onClick={() => setLightboxIndex(i + 1)}
+              onClick={() => setLightboxIndex(i)}
             >
               <div className="overflow-hidden transition-transform duration-500 group-hover:-translate-y-2 border border-violet/10 aspect-[16/10]">
                 <img 
