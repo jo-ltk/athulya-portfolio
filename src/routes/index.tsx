@@ -198,6 +198,20 @@ function Cover() {
           style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none", width: "100%", height: "100%" }}
         />
 
+        {/* Top-right Contact Link */}
+        <div
+          className={`absolute top-6 right-6 md:top-10 md:right-16 z-40 transition-opacity duration-[1000ms] delay-[1200ms] ${
+            uiVisible ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <Link
+            to="/contact"
+            className="text-[11px] uppercase tracking-[0.35em] text-ink hover:text-violet transition-colors duration-300 font-semibold"
+          >
+            Contact
+          </Link>
+        </div>
+
         {/* Bottom progress line */}
         <div
           style={{

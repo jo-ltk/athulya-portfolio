@@ -107,9 +107,11 @@ function AboutPage() {
 export function BackBar({
   to = "/nav",
   label = "Back to index",
+  hideContact = false,
 }: {
   to?: "/nav" | "/projects" | "/projects/graphic" | "/projects/illustration";
   label?: string;
+  hideContact?: boolean;
 }) {
   return (
     <div className="flex items-center justify-between">
@@ -122,9 +124,19 @@ export function BackBar({
         </span>
         {label}
       </Link>
-      <Link to="/" className="font-display text-xl text-violet">
-        ATHULIYA
-      </Link>
+      <div className="flex items-center gap-6">
+        {!hideContact && (
+          <Link
+            to="/contact"
+            className="text-[11px] uppercase tracking-[0.35em] text-ink hover:text-violet transition-colors"
+          >
+            Contact
+          </Link>
+        )}
+        <Link to="/" className="font-display text-xl text-violet">
+          ATHULIYA
+        </Link>
+      </div>
     </div>
   );
 }

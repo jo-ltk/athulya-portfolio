@@ -16,7 +16,7 @@ function ContactPage() {
   return (
     <PageShell>
       <div className="min-h-screen flex flex-col px-6 py-10 md:px-16 md:py-14">
-        <BackBar />
+        <BackBar hideContact={true} />
 
         <div className="flex-1 flex flex-col justify-center max-w-5xl mx-auto w-full py-16">
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
