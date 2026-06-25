@@ -9,29 +9,23 @@ export const Route = createFileRoute("/about")({
 });
 
 
-const beliefs = [
-  { label: "Colour", desc: "Every palette tells a story." },
-  { label: "Proportion", desc: "Scale shapes how we feel in space." },
-  { label: "Balance", desc: "Stillness achieved through intention." },
-];
-
 function AboutPage() {
   return (
     <PageShell>
-      <div className="min-h-screen px-6 py-10 md:px-16 md:py-14 flex flex-col justify-between gap-8">
+      <div className="min-h-screen px-6 py-10 md:px-16 md:py-14 flex flex-col gap-8">
         <BackBar />
 
         {/* ── Hero row ─────────────────────────────── */}
-        <div className="mt-8 grid gap-12 md:grid-cols-12 md:gap-0 items-stretch">
+        <div className="mt-8 flex flex-col gap-12 max-w-3xl mx-auto w-full">
 
           {/* Image column */}
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="md:col-span-5 md:pr-8 flex flex-col"
+            className="w-full flex flex-col"
           >
-            <div className="relative h-[420px] md:h-[580px]">
+            <div className="relative h-[300px] sm:h-[400px] md:h-[480px]">
               {/* Decorative offset border */}
               <div
                 className="absolute inset-0 translate-x-3 translate-y-3 border border-violet/30"
@@ -44,26 +38,11 @@ function AboutPage() {
                   className="h-full w-full object-cover halftone"
                 />
               </div>
-
-              {/* Floating discipline badge */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7, duration: 0.6 }}
-                className="absolute -bottom-5 -right-5 z-20 bg-violet px-5 py-3 shadow-lg"
-              >
-                <p className="text-[10px] uppercase tracking-[0.3em] text-cream/70">
-                  Based in
-                </p>
-                <p className="mt-0.5 font-display text-sm text-cream">
-                  Dubai, UAE
-                </p>
-              </motion.div>
             </div>
           </motion.div>
 
           {/* Text column */}
-          <div className="md:col-span-7 md:pl-12 flex flex-col">
+          <div className="w-full flex flex-col pb-12">
             {/* Section tag */}
             <motion.p
               initial={{ opacity: 0, y: 10 }}
@@ -115,50 +94,11 @@ function AboutPage() {
 
 
 
-            {/* Belief list — pinned to the bottom so this column matches the image column's height */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.65, duration: 0.8 }}
-              className="mt-auto pt-6 divide-y divide-violet/15 border-t border-violet/15"
-            >
-              {beliefs.map(({ label, desc }, i) => (
-                <div
-                  key={label}
-                  className="group flex items-baseline gap-6 py-3 hover:bg-violet/5 transition-colors duration-300"
-                >
-                  <span className="font-display text-xs text-violet/50">
-                    0{i + 1}
-                  </span>
-                  <p className="font-display text-2xl text-violet shrink-0">
-                    {label}
-                  </p>
-                  <p className="text-sm text-ink/55 leading-relaxed">
-                    {desc}
-                  </p>
-                </div>
-              ))}
-            </motion.div>
+
           </div>
         </div>
 
-        {/* ── Closing statement ─────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.85, duration: 1 }}
-          className="mt-20 mb-10 flex flex-col items-center text-center gap-4"
-        >
-          <p
-            className="font-display text-ink/20 leading-tight select-none"
-            style={{ fontSize: "clamp(3rem, 10vw, 9rem)" }}
-          >
-            DESIGN
-          </p>
-          <p className="max-w-md text-sm text-ink/50 leading-relaxed -mt-4">
-            Creating experiences that feel meaningful, human, and true.
-          </p>
-        </motion.div>
+
       </div>
     </PageShell>
   );
