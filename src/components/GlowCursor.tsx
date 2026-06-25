@@ -62,23 +62,23 @@ export function GlowCursor() {
 
       if (isHoverable) {
         if (cursorDotRef.current) {
-          cursorDotRef.current.style.width = "6px";
-          cursorDotRef.current.style.height = "6px";
-        }
-        if (cursorRingRef.current) {
-          cursorRingRef.current.style.width = "140px";
-          cursorRingRef.current.style.height = "140px";
-          cursorRingRef.current.style.opacity = "1";
-        }
-      } else {
-        if (cursorDotRef.current) {
           cursorDotRef.current.style.width = "10px";
           cursorDotRef.current.style.height = "10px";
         }
         if (cursorRingRef.current) {
-          cursorRingRef.current.style.width = "90px";
-          cursorRingRef.current.style.height = "90px";
-          cursorRingRef.current.style.opacity = "0.75";
+          cursorRingRef.current.style.width = "40px";
+          cursorRingRef.current.style.height = "40px";
+          cursorRingRef.current.style.opacity = "1";
+        }
+      } else {
+        if (cursorDotRef.current) {
+          cursorDotRef.current.style.width = "12px";
+          cursorDotRef.current.style.height = "12px";
+        }
+        if (cursorRingRef.current) {
+          cursorRingRef.current.style.width = "38px";
+          cursorRingRef.current.style.height = "38px";
+          cursorRingRef.current.style.opacity = "0.85";
         }
       }
     }
@@ -114,8 +114,8 @@ export function GlowCursor() {
           ref={cursorDotRef}
           style={{
             position: "fixed",
-            width: 10,
-            height: 10,
+            width: 12,
+            height: 12,
             background: "#B599FF",
             borderRadius: "50%",
             transform: "translate(-50%, -50%)",
@@ -127,15 +127,15 @@ export function GlowCursor() {
           ref={cursorRingRef}
           style={{
             position: "fixed",
-            width: 90,
-            height: 90,
+            width: 28,
+            height: 28,
             borderRadius: "50%",
+            border: "1.5px solid rgba(168, 85, 247, 0.7)",
+            background: "transparent",
             transform: "translate(-50%, -50%)",
             transition: "width .3s ease, height .3s ease, opacity .3s, transform .15s ease",
-            opacity: 0.75,
+            opacity: 0.85,
             pointerEvents: "none",
-            // Sharper glow: tighter gradient range and higher center opacity
-            background: "radial-gradient(circle, rgba(168, 85, 247, 0.5) 0%, rgba(168, 85, 247, 0.2) 40%, rgba(168, 85, 247, 0) 60%)",
           }}
         />
       </div>
