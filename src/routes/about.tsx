@@ -63,7 +63,7 @@ function AboutPage() {
             >
               Athuliya{" "}
               <span className="font-italic-serif italic text-violet">
-                / Designer
+                / Creative Designer
               </span>
             </motion.h1>
 
