@@ -62,9 +62,7 @@ function AboutPage() {
               style={{ fontSize: "clamp(2.6rem, 6vw, 5rem)" }}
             >
               Athuliya{" "}
-              <span className="font-italic-serif italic text-violet">
-                / Creative Designer
-              </span>
+              <span className="font-italic-serif italic text-violet">/ Creative Designer</span>
             </motion.h1>
 
             {/* Primary bio paragraph */}
