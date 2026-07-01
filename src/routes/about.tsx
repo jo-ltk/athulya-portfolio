@@ -57,12 +57,20 @@ function AboutPage() {
             <motion.h1
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+              transition={{
+                delay: 0.2,
+                duration: 0.9,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className="mt-4 font-display leading-[0.9] text-ink"
-              style={{ fontSize: "clamp(2.6rem, 6vw, 5rem)" }}
+              style={{ fontSize: "clamp(2rem, 5vw, 5rem)" }}
             >
-              Athuliya{" "}
-              <span className="font-italic-serif italic text-violet">/ Creative Designer</span>
+              <span className="inline-flex items-baseline whitespace-nowrap gap-2">
+                <span>Athuliya</span>
+                <span className="font-italic-serif italic text-violet">
+                  / Creative Designer
+                </span>
+              </span>
             </motion.h1>
 
             {/* Primary bio paragraph */}
